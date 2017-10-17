@@ -5,29 +5,23 @@ const csurf = require("csurf");
 const passport = require("passport");
 
 const csurfProtection = csurf();
+const UserController = require("../controllers/user");
 router.use(csurfProtection);
 
-router.get("/profile", isLoggedIn, (req, res) => {
+router.get("/profile", UserController.isLoggedIn, (req, res) => {
   res.render("user/profile");
 });
 
-router.get("/logout", isLoggedIn, (req, res) => {
+router.get("/logout", UserController.isLoggedIn, (req, res) => {
   req.logout();
   res.redirect("/");
 });
 //If user loggedIn - can't use routes below this middleware
-router.use("/", notLoggedIn, (req, res, next) => {
+router.use("/", UserController.notLoggedIn, (req, res, next) => {
   next();
 });
 
-router.get("/signup", (req, res) => {
-  const messages = req.flash("error");
-  res.render("user/signup", {
-    csrfToken: req.csrfToken(),
-    messages,
-    hasErrors: messages.length > 0
-  });
-});
+router.get("/signup", UserController.signUp);
 
 router.post(
   "/signup",
@@ -38,14 +32,7 @@ router.post(
   })
 );
 
-router.get("/signin", (req, res) => {
-  const messages = req.flash("error");
-  res.render("user/signin", {
-    csrfToken: req.csrfToken(),
-    messages,
-    hasErrors: messages.length > 0
-  });
-});
+router.get("/signin", UserController.signIn);
 
 router.post(
   "/signin",
@@ -58,16 +45,4 @@ router.post(
 
 module.exports = router;
 
-function isLoggedIn(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  res.redirect("/");
-}
 
-function notLoggedIn(req, res, next) {
-  if (!req.isAuthenticated()) {
-    return next();
-  }
-  res.redirect("/");
-}
