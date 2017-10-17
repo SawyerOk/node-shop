@@ -11,8 +11,9 @@ const expressHbs = require("express-handlebars");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const flash = require("connect-flash");
+const MongoStore = require("connect-mongo")(session);
 
-const userRouter = require('./routes/user');
+const userRouter = require("./routes/user");
 
 const app = express();
 
@@ -32,7 +33,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(validator());
 app.use(cookieParser());
 app.use(
-  session({ secret: "3ds2dfv", resave: false, saveUninitialized: false })
+  session({
+    secret: "3ds2dfv",
+    resave: false,
+    saveUninitialized: false,
+    store: new MongoStore({ mongooseConnection: mongoose.connection }),
+    cookie: { maxAge: 180 * 60 * 1000 }
+  })
 );
 app.use(flash());
 app.use(passport.initialize());
@@ -40,8 +47,10 @@ app.use(passport.session());
 app.use(express.static(path.join(__dirname, "public")));
 
 //Middleware chekes authentication
-app.use((req,res,next)=>{
+//Acces to session on all views
+app.use((req, res, next) => {
   res.locals.login = req.isAuthenticated();
+  res.locals.session = req.session;
   next();
 });
 
