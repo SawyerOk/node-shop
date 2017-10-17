@@ -71,7 +71,7 @@ passport.use(
           .notEmpty()
           .isEmail();
         req
-          .checkBody("password", "Invalid password")
+          .checkBody("password", "Invalid checkbody password")
           .notEmpty()
           .isLength({ min: 4 });
         const errors = req.validationErrors();
@@ -89,8 +89,8 @@ passport.use(
           if (!user) {
             return done(null, false, { message: "There is no user with this password" });
           }
-          if(user.validPassword(password)) {
-              return done(null, false, {message : "Invalid Password"});
+          if(!user.validPassword(password)) {
+              return done(null, false, {message : "Invalid from db Password"});
           }
           return done(null, user);
         });

@@ -12,6 +12,8 @@ const mongoose = require("mongoose");
 const session = require("express-session");
 const flash = require("connect-flash");
 
+const userRouter = require('./routes/user');
+
 const app = express();
 
 mongoose.connect("localhost:27017/shop");
@@ -37,6 +39,13 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, "public")));
 
+//Middleware chekes authentication
+app.use((req,res,next)=>{
+  res.locals.login = req.isAuthenticated();
+  next();
+});
+
+app.use("/user", userRouter);
 app.use("/", index);
 
 // catch 404 and forward to error handler
