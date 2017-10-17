@@ -52,4 +52,12 @@ router.get("/shopping-cart", (req, res) => {
   });
 });
 
+router.get("/checkout", (req, res) => {
+  if (!req.session.cart) {
+    return res.render("shop/shopping-cart", { products: null });
+  }
+  const cart = new Cart(req.session.cart);
+  res.render("shop/checkout", { total: cart.totalPrice });
+});
+
 module.exports = router;
